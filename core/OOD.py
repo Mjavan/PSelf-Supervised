@@ -29,113 +29,48 @@ from pathlib import Path
 from sklearn.model_selection import ShuffleSplit
 
 from networks import networkbyol, finetune_net
-
 try:
     import cPickle as pickle
 except:
-    import pickle
+    import pickle    
 import warnings 
 warnings.filterwarnings('ignore')
 
-
 ######## Preprocess 
 def preprocess(ds,in_size=None):
-    
     if ds == 'svhn' or ds == 'cifar100' or ds == 'cifar10':
-        
-        #transform=transforms.ToTensor()
         transform=transforms.Compose([transforms.Resize(size=(in_size,in_size)),
                               transforms.ToTensor()])
-        
     elif ds == 'lsun':
-        
         transform=transforms.Compose([transforms.Resize(size=(in_size,in_size)),
                               transforms.ToTensor()])
-    
     return(transform)
 
 ######## Computing uncertainties
 def Entropy(p):
-    
-    # p :[N_data,num_cls]
-    # H: [N_data,num_cls]
-    
+    """ p :[N_data,num_cls]
+        H: [N_data,num_cls]
+    """
     H = -(p *np.log(p)).sum(axis=1)
-    
-    # meanH, gives mean entropy on whole dataset
-     
+    # meanH: mean entropy on whole dataset 
     meanH = H.mean(axis=0)
-
     stdH = H.std(axis=0)
-    
     return(H,meanH,stdH)
-
 
 ######## evaluation metric for OOD detection (cdf)
 def cdf(ent,num_cls_OOD):
-    
     p = 1/num_cls_OOD
-    
-    max_ent = - num_cls_OOD * p *np.log(p)
-    
-    print(f'max ent for:{num_cls_OOD} cls is {max_ent:0.4f}')
-    
-    print(f'max obtained ent is:{np.max(ent):0.4f}\n')
-    
-    
+    max_ent = - num_cls_OOD * p *np.log(p)    
     up_bound = max_ent.round(1)+0.3
-    
     unc_thr = [l.round(2) for l in list(np.arange(0.0,up_bound,0.1))]
-    
     emp_cdf = dict.fromkeys(unc_thr)
-    
     for thr in unc_thr:
-        
         ent_thr = ent[ent<=thr]
-        
         emp_cdf[thr] = ent_thr.sum() / ent.sum()
-        
     return(emp_cdf)
-
-
-######## plot pdf
-def plot_pdf_entropy(ent,ood_ds,model,exp,tot_ens,file_path):
-    
-    fig = plt.figure()
-    
-    sns.set_theme()
-    
-    sns.histplot(ent, kde=True)
-    
-    plt.xlabel("Entropy")
-    
-    plt.title("Density Plot")
-    
-    plt.show()
-    
-    fig.savefig(os.path.join(file_path,f"{ood_ds}_{model}_{exp}_{tot_ens}_pdf.jpg"))
-    
-    
-######## plot cdf
-def plot_cdf_entropy(emp_cdf,ood_ds,model,exp,tot_ens,file_path):
-    
-    fig = plt.figure()
-    
-    plt.plot(list(emp_cdf.keys()), list(emp_cdf.values()))
-    
-    plt.xlabel("Entropy")
-    
-    plt.ylabel("Emperical CDF")
-    
-    plt.show()
-    
-    fig.savefig(os.path.join(file_path,f"{ood_ds}_{model}_{exp}_{tot_ens}_cdf.jpg"))    
-    
-    
+   
 ######## get AUC score
-
 def get_auroc(pr_pos, pr_neg):
-    
     # pos: InD with labels 1
     # neg: OOD with labels 0
     
@@ -144,21 +79,9 @@ def get_auroc(pr_pos, pr_neg):
    
     # pr of InD and OOD samples
     samples = np.vstack((pos, neg))
-    
-    print(f'tot pos and neg samples:{samples.shape}')
-    
     labels = np.zeros(len(samples), dtype=np.int32)
-    labels[:len(pos)] += 1
-    
-    # check labels 
-    print(f'label pos:{np.unique(labels[:len(pos)])}')
-    print(f'label neg:{np.unique(labels[len(pos)+1:])}\n')
-    
-    roc_auc_correct = roc_auc_score(labels, samples)
-    
-    # this code works correctly 
-    print(f'roc_auc_correct is:{round(roc_auc_correct*100,1)}\n')
-    
+    labels[:len(pos)] += 1    
+    roc_auc_correct = roc_auc_score(labels, samples)    
     return(round(roc_auc_correct*100,1))
 
 ##############################
@@ -251,31 +174,23 @@ def OOD(args):
     
     # defining loss function
     criterion = nn.CrossEntropyLoss().to(device)
-    
-    
+
     backbone = models.resnet18(pretrained=args.prtr, progress=True)
     
     # making ood datasets and data loaders
     if args.ood_ds=="svhn":
-        
         svhn = datasets.SVHN(root='./',split='test',transform=preprocess(args.ood_ds,args.in_size),download=True)
         testloader = DataLoader(dataset=svhn,batch_size=args.b_size,shuffle=False,num_workers=4,drop_last=True)
-        
-        im_size = svhn[0][0].size()
-        print(f'Size of images in {args.ood_ds} is {im_size}')
                     
     elif args.ood_ds=='cifar100':
-        
         cifar100 = datasets.CIFAR100('./data',train=False,transform=preprocess(args.ood_ds),download=True)
         testloader = DataLoader(dataset=cifar100,batch_size=args.b_size,shuffle=False,num_workers=4,drop_last=True)
         
     elif args.ood_ds=='cifar10':
-        
         cifar10 = datasets.CIFAR10('./data',train=False,transform=preprocess(args.ood_ds,args.in_size),download=True)
         testloader = DataLoader(dataset=cifar10,batch_size=args.b_size,shuffle=False,num_workers=4,drop_last=True)
             
     tot_ens = args.num_ens - args.burn_in 
-    
     tot_output = []
     tot_gt = []
     mean_pr_logits = []
@@ -285,19 +200,12 @@ def OOD(args):
     
     for j,(img,lable) in enumerate(testloader):
         
-        # [b_size,channel,h,w] = [100, 3, 32, 32]
-        # lable = [100]    
         img = img.to(device)
         lable = lable.to(device)
-        
         tot_gt+=list(lable.data.cpu().numpy())
-                
         batch_output = img.data.new(tot_ens,len(img),args.num_cls_OOD)
             
-        for idx,i in enumerate(range(args.burn_in,args.num_ens)):
-                
-            #print(f'loading model for {i}th checkpoint!')
-                 
+        for idx,i in enumerate(range(args.burn_in,args.num_ens)):         
             net = networkbyol('online',backbone,args.emb_size,args.proj_size).to(device)
             encoder = nn.Sequential(*list(net.children())[:-2])
             model = finetune_net(encoder,args.emb_size,args.num_classes).to(device)
@@ -305,14 +213,10 @@ def OOD(args):
             # load best model from fine tunned modesl dir
             ckt_inf = torch.load(os.path.join(save_dir_fine,f'{args.exp}_{args.split}%_all_{i}_best_model.pt'),\
                                  map_location=device)
-                                     
-                
+            
             model.load_state_dict(ckt_inf['model'])
-                  
             if args.num_classes != args.num_cls_OOD:
-                
                 model.linear = nn.Linear(args.emb_size,args.num_cls_OOD).to(device)
-                    
             batch_output[idx] = model(img.float())
         
         # take mean of logits and compute CE loss: [batch,cls_OOD]
@@ -329,38 +233,20 @@ def OOD(args):
         log_mean_pr_batch = torch.log(mean_pr_logits_batch)
         loss2 = F.nll_loss(log_mean_pr_batch,lable) # reduction:mean
         nll += loss2.item()
-        
         mean_pr_logits.append(mean_pr_logits_batch.data.cpu().numpy())
-            
-       
+                
     ce_loss /= len(testloader)
     nll /= len(testloader) # this nll is wrong 
     acc = correct / len(testloader.dataset) 
-    
-    # mean_pr_logits: [dataset,cls]
+
     mean_pr_logits = np.concatenate(mean_pr_logits)
-    
-    
-    # entropy on OOD tets set 
     epistemic, mean_eps, std_eps = Entropy(mean_pr_logits)
     
-    print(f'mean entropy OOD:{mean_eps:0.4f}')
-    print(f'std entropy OOD:{std_eps:0.4f}\n')
-    
-    if args.in_dist:
-        
+    if args.in_dist:    
         pr_tot = np.load(os.path.join(result_dir_exp,'burn_%d_pr_ens.npy'%(args.burn_in_ind)))
-        
         ig_sam = pr_tot.shape[0] - tot_ens
-                
         log_tot = np.load(os.path.join(result_dir_exp,'burn_%d_logits_ens.npy'%(args.burn_in_ind)))
-        
         mean_pr_InD = pr_tot[ig_sam:].mean(axis=0)
-        
-        print(f'pr_tot_InD:{pr_tot.shape}')
-        print(f'ignored samples:{ig_sam}')
-        print(f'InD evaluation on {pr_tot[ig_sam:].shape[0]} ensembles\n')
-        
         epistemic_InD, mean_eps_InD, std_eps_InD = Entropy(mean_pr_InD)
         
     tot_gt = np.array(tot_gt)
@@ -370,15 +256,9 @@ def OOD(args):
     pr_pos = mean_pr_InD.max(axis=1)
     pr_neg = mean_pr_logits.max(axis=1)
     
-     
-    print(f'pr_neg: {pr_neg.shape}')
-    print(f'pr_pos: {pr_pos.shape}\n')
-    
     auc_roc_scr = get_auroc(pr_pos,pr_neg)
     
-    
-    if args.write_exp:
-        
+    if args.write_exp: 
         data = {
             'ood_ds':[args.ood_ds],
             'ssl':[args.model],
@@ -399,33 +279,17 @@ def OOD(args):
         csv_path = Path(os.path.join(result_dir,'run_sweeps_test_OOD.csv'))
 
         if os.path.exists(csv_path): 
-            
             sweeps_df = pd.read_csv(csv_path)
             sweeps_df = sweeps_df.append(
             pd.DataFrame.from_dict(data), ignore_index=True).set_index('exp')
 
         else:
-            
             csv_path.parent.mkdir(parents=True, exist_ok=True) 
             sweeps_df = pd.DataFrame.from_dict(data).set_index('exp')
 
         # save experiment metadata csv file
         sweeps_df.to_csv(csv_path)
-        
-    if args.plot:
-        
-        # plot pdf
-        plot_pdf_entropy(epistemic,args.ood_ds,args.model,args.exp,tot_ens,file_path=result_dir)
-        
-        # compute emperical cdf 
-        emp_cdf = cdf(epistemic,args.num_cls_OOD)
-        
-        np.save(os.path.join(result_dir,f'{args.ood_ds}_{args.model}_{args.exp}_{tot_ens}_cdf.npy'),emp_cdf)
-        
-        # plot emperical cdf
-        plot_cdf_entropy(emp_cdf,args.ood_ds,args.model,args.exp,tot_ens,file_path=result_dir)
-        
-        
+                
 # main execuation
 if __name__=='__main__':
    

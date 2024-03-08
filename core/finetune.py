@@ -22,8 +22,8 @@ import pandas as pd
 import datetime
 from pathlib import Path 
 
-from ..networks import networkbyol,networksimclr,finetune_net
-from ..utils import evaluation_metrics
+from networks import networkbyol,networksimclr,finetune_net
+from utils import evaluation_metrics
 
 
 import warnings 
@@ -124,7 +124,6 @@ args = parser.parse_args()
 def semi_supervised(args):
     
     print(f'Baysian Semi-supervised evaluation')
-
     seed = args.seed
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
@@ -144,23 +143,21 @@ def semi_supervised(args):
     param_dir = save_dir /'params'/f'{args.cont}_params'/'finetune'/ args.ds_ft /\
     f'exp_{args.exp}_opt_{args.opt}_pr_{args.ds_pr}'
     
-    print(f'making a directory for results!')
+    ## making a directory for results!
     result_dir_exp = save_dir / 'results' / f'{args.ds_ft}_{args.exp_split[0]}'/ f'{args.exp}_pr_{args.ds_pr}'
 
-    
     os.makedirs(param_dir, exist_ok=True)
     os.makedirs(result_dir_exp,exist_ok=True)
     
-    # making a dic from hyperparameters
+    ## making a dic from hyperparameters
     config = vars(args) 
     
-    # loadig hyperparameters pretrained model
+    ## loadig hyperparameters pretrained model
     with open(save_dir/'params'/f'{args.cont}_params'/'pretrain'/args.ds_pr/f'{args.exp}_{args.model_type}param.json') as\
-    file: 
-        
+    file:  
         HPP = json.load(file)
         in_size = HPP['in_size']  
-    
+      
     ## loading test_set
     if config['ds_ft']=='cifar10':                          
         testset = datasets.CIFAR10('./data',train=False,\
@@ -183,7 +180,7 @@ def semi_supervised(args):
         testset = datasets.ImageFolder(path_tinyimagenet,transform=get_transform(config['ds_ft'],in_size))
                                                                                   
     test_loader = DataLoader(testset,batch_size=100,num_workers=config['num_workers'],drop_last=False,shuffle=False)
-    
+  
     # defining loss function
     criterion = nn.CrossEntropyLoss().to(device)
     
@@ -193,95 +190,74 @@ def semi_supervised(args):
     n_ckts_tot = config['ckt_sp'] if config['ckt_sp'] else len(ckt_list) 
     
     n_ckts = n_ckts_tot - config['burn_in']
-   
-        
-    for train_split in config['exp_split']:
-        
+         
+    for train_split in config['exp_split']:     
         print("\n--------------------")
         print("\nfine tunning on : {} % of {}".format(train_split,config['ds_ft']))
         print("--------------------\n")
         
-        
         with open(os.path.join(split_dir,'train_set_%s_%d_%d%%.pickle'%(config['ds_ft'],in_size,train_split)),'rb') as f:
             train_set = pickle.load(f)
 
-        
         with open(os.path.join(split_dir,'val_set_%s_%d_%d%%.pickle'%(config['ds_ft'],in_size,train_split)),'rb') as f:
             val_set = pickle.load(f) 
-    
-                                                            
+                                                                
         train_loader=DataLoader(train_set,batch_size=config['batch_size'],num_workers=config['num_workers'],\
                                 drop_last=False,shuffle=True)
         val_loader=DataLoader(val_set,batch_size=config['batch_size'],num_workers=config['num_workers'],\
                               drop_last=False,shuffle=True)
         
         pr_tot = []
-        log_tot= []
-        
+        log_tot= []    
         error_cycles = []  
         acc_cycles = []
         
         if config['fine']:
-        
             for i in range(config['burn_in'],n_ckts_tot):
-            
                 print("\n ##################################################")
                 print(f'{i+1}th model form epoch {ckt_epochs[i]} is loaded!')
                 print("#####################################################")
             
                 sam_dir = os.path.join(exp_dir ,'%s_%d'%(config['opt'],config['exp']))
-            
                 state_dict = torch.load(glob.glob(os.path.join(sam_dir,f'*_{i}.pt'))[0],map_location=device)
-                
                 if args.model_depth == 'res18':
-                    
                     backbone = models.resnet18(pretrained=False, progress=True)
                     fv_size = 512    # the size of embedding vector in resnet18 after avg pooling layer
                     
                 elif args.model_depth == 'res50':
-                    
                     backbone = models.resnet50(pretrained=False, progress=True)
                     fv_size = 2048  # the size of embedding vector in resnet50 after avg pooling layer
                     
                 if config['cont']=='byol':
-                    
                     net = networkbyol('online',backbone,config['mlp_hid_size'],config['proj_size']).to(device)
                     net.load_state_dict(state_dict)
                     encoder = nn.Sequential(*list(net.children())[:-2])
                     
                 elif config['cont']=='simclr':
-                    
                     net = networksimclr(backbone,config['mlp_hid_size'],config['proj_size']).to(device)
                     net.load_state_dict(state_dict)
                     encoder = nn.Sequential(*list(net.children())[:-1])
                         
                 model = finetune_net(encoder,fv_size,config['num_classes']).to(device)
-                            
                 optimizer = optim.SGD(model.parameters(),lr=config['lr'],\
                                       nesterov=config['nes'],weight_decay=config['wd'],momentum=0.9)
-            
+                
                 last = True if i==n_ckts_tot-1 else False
-                
                 save_dir_fine = save_dir / f'{args.cont}_ckpts' / 'finetune' / config['ds_ft']
-                
                 single_finetune(config['exp'],model,optimizer,criterion,train_loader,val_loader,\
                                 config['num_epochs'],save_dir_fine,config['ckt'],i,device,train_split,\
                                 config['ds_ft'],last,config['opt'])
                              
                 print(f'\n making inference on test set for {i}th checkpoint!')
-            
                 ckt_inf = torch.load(os.path.join(save_dir_fine,'%s_%d%%_%s_%d_%s_model.pt'%
                                                   (config['exp'],train_split,config['ckt'],i,\
                                                    config['ckt_inf'])),map_location=device)
                                                                                                                                  
                 model.load_state_dict(ckt_inf['model'])
                 best_epoch = ckt_inf['epoch']                                               
-        
                 out_pr, logits, gt_list, error, acc = inference(model,test_loader,criterion,device)
-            
                 error_cycles.append(error)
                 acc_cycles.append(acc)
-                
                 pr_tot.append(out_pr)
                 log_tot.append(logits)
             
@@ -296,26 +272,19 @@ def semi_supervised(args):
         
         # saving the results 
         if config['pr_ens']:
-            
             np.save(os.path.join(result_dir_exp,'burn_%d_pr_ens.npy'%(config['burn_in'])),pr_tot)
             np.save(os.path.join(result_dir_exp,'burn_%d_logits_ens.npy'%(config['burn_in'])),log_tot)
-            
             np.save(os.path.join(result_dir_exp,'burn_%d_error_cycl.npy'%(config['burn_in'])),error_cycles)
             np.save(os.path.join(result_dir_exp,'burn_%d_acc_cycl.npy'%(config['burn_in'])),acc_cycles)
         
         # evaluating on test set
         if config['eval']:
-            
             if not config['pr_ens']:
-                
                 pr_tot = np.load(os.path.join(result_dir_exp,'burn_%d_pr_ens.npy'%(config['burn_in'])))
                 log_tot = np.load(os.path.join(result_dir_exp,'burn_%d_logits_ens.npy'%(config['burn_in'])))
                 gt_list = np.load(os.path.join(result_dir_exp,f'gts.npy'))
-            
             nll_tot,acc_tot = evaluation_metrics(pr_tot,log_tot,gt_list,device,ig_sam=config['ig_sam'])
-        
         if config['write_exp']:
-            
             data = {
                 'exp': [config['exp']],
                 'opt':[config['opt']],
@@ -330,30 +299,21 @@ def semi_supervised(args):
                 'n_ensembel': [n_ckts],
                 'NLL':[round(nll_tot.item(),4)],
                 'ACC':[round(acc_tot,4)]}
-        
             # ./results
             csv_path = result_dir_exp/'run_sweeps_test.csv'
-
             if os.path.exists(csv_path):
-
                 sweeps_df = pd.read_csv(csv_path)
                 sweeps_df = sweeps_df.append(
                 pd.DataFrame.from_dict(data), ignore_index=True).set_index('exp')
-
             else:
-            
                 csv_path.parent.mkdir(parents=True, exist_ok=True) 
                 sweeps_df = pd.DataFrame.from_dict(data).set_index('exp')
-
             # save experiment metadata csv file
             sweeps_df.to_csv(csv_path)
-        
     print(f'\n Fine tunning was finished!\n')
     
 ##### Running finte tunning
-
 if __name__=='__main__':
-    
     semi_supervised(args)
          
 

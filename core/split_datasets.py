@@ -60,13 +60,11 @@ def get_transform(in_size,ds,phase='train'):
            
     
     if phase =='train':
-        
         transform=transforms.Compose([transforms.RandomResizedCrop(size=in_size),
                                   transforms.RandomHorizontalFlip(),
                                   transforms.ToTensor(),
                                   transforms.Normalize(mean_ds,std_ds)])     
     else:
-        
         transform=transforms.Compose([transforms.ToTensor(),
                                       transforms.Normalize(mean_ds,std_ds)])  
     return(transform)
@@ -78,49 +76,32 @@ def get_train_val_set(dataset,ds,val_size,in_size,seed,val2=0):
     ## making transformations
     transform_train = get_transform(in_size,ds,phase='train')
     transform_val = get_transform(in_size,ds,phase='val')
-    
-    
     split = ShuffleSplit(n_splits=1,test_size=val_size,random_state=seed)
-    
     for train_idx, val_idx in split.split(range(len(dataset))):
-        
         train_index= train_idx
         val_index = val_idx
         
     train_set1 = Subset(dataset,train_index)
     val_set1 = Subset(dataset,val_index)
     
-    if not val2:
-        
-        print(f'full dataset:{val_size}')
-        
+    if not val2:        
         train_set1.transform = transform_train
         val_set1.transform = transform_val
-        
         return(train_set1,val_set1)
         
     val2 = val_size*0.1
-        
-    print(f'val2:{val2}')
-        
     split = ShuffleSplit(n_splits=1,test_size=val2,random_state=seed)
-        
     for train_idx, val_idx in split.split(range(len(train_set1))):
-        
         train_index= train_idx
         val_index = val_idx
         
     train_set2 = Subset(train_set1,train_index)
     val_set2 = Subset(train_set1,val_index)
         
-    
     val_set1.transform = transform_train
     val_set2.transform = transform_val
-    
     return(val_set1,val_set2)
-        
-    
-    
+          
 ############## making dataloaders and saving them ##############
 
 parser = argparse.ArgumentParser(description='Making datasets')
@@ -155,13 +136,6 @@ def split_datasets(args):
         transform=transforms.Compose([transforms.Resize(size=args.in_size),transforms.ToTensor()])
         trainset = datasets.CIFAR100('./data',train=True,transform=transform,download=True)
         
-    elif args.ds == 'mnist':
-        
-        mean = (0.1307,)
-        std = (0.3081,)
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize(mean,std)]) 
-        trainset = datasets.MNIST('./data',train=True,transform=transform,download=True)
-        
     elif args.ds == 'stl10':
         transform=transforms.Compose([transforms.Resize(size=args.in_size),transforms.ToTensor()])
         trainset = datasets.STL10('./data',split='train',transform=transform,download=True)
@@ -178,10 +152,7 @@ def split_datasets(args):
         transform=transforms.Compose([transforms.Resize(size=(args.in_size,args.in_size)),transforms.ToTensor()])
         trainset = datasets.ImageFolder(path_tinyimagenet,transform=transform)
                                             
-    
-    
     for split in args.splits:
-        
         train_split= split / 100
         print(f'train_split is:{train_split}')
         
@@ -198,11 +169,7 @@ def split_datasets(args):
         ## Saving train_set & val_set
         save_train = svd_split / f'train_set_{args.ds}_{args.in_size}_{split}%.pickle'
         save_val = svd_split / f'val_set_{args.ds}_{args.in_size}_{split}%.pickle'
-    
-        print(f'save_train:{save_train}')
-        print(f'save_val:{save_val}')
-    
-    
+        
         with open(save_train, 'wb') as f:
             pickle.dump(train_set,f,protocol=pickle.HIGHEST_PROTOCOL)
         
@@ -210,14 +177,10 @@ def split_datasets(args):
             pickle.dump(val_set,f,protocol=pickle.HIGHEST_PROTOCOL)
         
     print('Making datasets were done!')
-    
     return(train_set,val_set)
-
-
-#### running script ####
-
-if __name__=='__main__':
     
+#### running script ####
+if __name__=='__main__':
     save_datasets(args)
     
 

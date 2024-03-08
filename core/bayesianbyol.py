@@ -1,8 +1,5 @@
 # /core/bayesianbyol.py
 
-import sys
-sys.path.insert(0, "../core")
-
 import torch
 from torch import nn
 from torch import optim

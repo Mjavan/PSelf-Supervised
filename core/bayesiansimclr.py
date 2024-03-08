@@ -6,8 +6,6 @@ from torch.utils.data import Dataset, DataLoader, Subset
 from torch.optim import lr_scheduler
 from torch.optim.optimizer import Optimizer, required
 
-
-
 ##### python libraries
 import os
 import random
@@ -26,37 +24,29 @@ from pathlib import Path
 import warnings 
 warnings.filterwarnings('ignore')
 
-
-from ..networks import networksimclr
-from ..Dataloader.dataloader import get_transform, pair_aug, get_train_val_loader
-from ..Optimizer.csghmc import SGHM
-from ..Optimizer.lr_scheduler import update_lr, update_lin
+from networks import networksimclr
+from dataloader import get_transform, pair_aug, get_train_val_loader
+from csghmc import SGHM
+from lr_scheduler import update_lr, update_lin
 
 
 ##### NT_Xent loss
-
 class NT_Xent(nn.Module):
     def __init__(self, temperature, device):
         super(NT_Xent, self).__init__()
         
-
         self.temperature = temperature
         self.device = device
-
         self.criterion = nn.CrossEntropyLoss(reduction="sum")
         self.similarity_f = nn.CosineSimilarity(dim=2)
-
-
-    def forward(self, z_i, z_j):
         
+    def forward(self, z_i, z_j): 
         self.batch_size= z_i.size()[0]
-        
         self.mask = torch.ones((self.batch_size * 2, self.batch_size * 2), dtype=bool)
         self.mask = self.mask.fill_diagonal_(0)
         for i in range(self.batch_size):
             self.mask[i, self.batch_size + i] = 0
             self.mask[self.batch_size + i, i] = 0
-        
         
         z_i= F.normalize(z_i, dim=1)
         z_j= F.normalize(z_j, dim=1)
@@ -69,8 +59,6 @@ class NT_Xent(nn.Module):
         sim_j_i = torch.diag(sim, -self.batch_size)
         
         positive_samples = torch.cat((sim_i_j, sim_j_i), dim=0).reshape(self.batch_size * 2, 1)
-
-        
         negative_samples = sim[self.mask].reshape(self.batch_size * 2, -1)
 
         labels = torch.zeros(self.batch_size * 2).to(positive_samples.device).long()
@@ -79,10 +67,7 @@ class NT_Xent(nn.Module):
         loss /= 2 * self.batch_size
         return(loss)
     
-############
-
 #### Main training
-
 parser = argparse.ArgumentParser(description='SimCLR pretraining')
 
 parser.add_argument('--seed',type=int,default=42,
@@ -115,7 +100,6 @@ parser.add_argument('--prtr',type=bool, default=True,
 
 parser.add_argument('--temp_loss',type = float, default=0.1, 
                         help = 'Temprature for simCLR loss!')
-
 # optimizer 
 parser.add_argument('--optimizer',type=str, default='sgd', choices=('adam','sgd','sghm'),
                        help='The optimizer to use')
@@ -126,7 +110,6 @@ parser.add_argument('--base_target_ema',type=float, choices=(0,1), default=0.996
 parser.add_argument('--temp',type = float, default=0.1, 
                         help = 'Temprature for cold posterior in sghm opt!')
 
-
 # data
 parser.add_argument('--in_size',type=int, default=224,
                        help='The input size of images')
@@ -136,7 +119,6 @@ parser.add_argument('--s',type=float,default=1.0,choices=(0.5,1.0),
 
 parser.add_argument('--aug',type=bool,default=True,
                         help='If we want to have data augmentation or not!')
-
 # dataloader
 parser.add_argument('--batch_size',type=int, default=256,
                        help='The number of batch size for training')
@@ -159,7 +141,6 @@ parser.add_argument('--lr_dec',type=float,default=3.0,
 
 parser.add_argument('--cycle_length',type=int, default=50,
                        help='Number of epochs in each cycle of cyclic lr schedule or save checkpoints!')
-
 # regularizer
 parser.add_argument('--wd',type=float,default=0,choices=(0,1,0.1,0.075,0.05,0.01,25),
                        help='weight decay')
@@ -185,13 +166,10 @@ parser.add_argument('--N_samples',type =int, default=4,
 
 parser.add_argument('--scale',type =bool, default =False, 
                         help = 'If we want to scale the loss or not!')
-
                         
 args = parser.parse_args() 
 
-
-def main(args):
-    
+def main(args):    
     seed =args.seed
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
@@ -199,12 +177,9 @@ def main(args):
     random.seed(seed)
     np.random.seed(seed)
     
-    
     ## setting device 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     use_cuda = torch.cuda.is_available()
-    print(f'\n use_cuda:{use_cuda}')
-    print(f'\ndevice:{device}')
     
     ## making directory to save checkpoints 
     save_dir = Path('./')
@@ -215,7 +190,6 @@ def main(args):
     
     ## saving version packages
     os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')
-    
     
     ## saving hyperparameters
     HPS = vars(args)    
@@ -234,22 +208,17 @@ def main(args):
     elif args.ds == 'imagenet10':
         path_imagenet = save_dir/'data'/'imagenet10'/'train'     
         dataset = datasets.ImageFolder(path_imagenet,transform=pair_aug(get_transform(args.in_size,args.ds,args.s,args.aug)))
-        
-        
+            
     elif args.ds == 'stl10':
         dataset = datasets.STL10('./data', split='unlabeled',transform=pair_aug(get_transform(args.in_size,args.ds,args.s)),\
                                  download = True)
-        
-        print(f'len stl10 unlabeld:{len(dataset)}')
-        
+            
     elif args.ds == 'tinyimagenet':
         path_tinyimagenet = save_dir/'data'/'tiny-imagenet-200'/'train'
         dataset = datasets.ImageFolder(path_tinyimagenet,transform=pair_aug(get_transform(args.in_size,args.ds,args.s)))
-        
-                
+                    
     train_loader,val_loader = get_train_val_loader(dataset,val_size=args.val_size,batch_size=args.batch_size,\
                                                    num_workers=args.num_workers,seed=args.seed)
-    
     
     ## Setting parameters for cyclic learning rate schedule
     N_train = len(train_loader.dataset)
@@ -257,7 +226,6 @@ def main(args):
     cycle_batch_length = args.cycle_length * n_batch
     batch_idx = 0
 
-    
     ## Building model 
     if args.model_depth=="res18":
         backbone = models.resnet18(pretrained=args.prtr, progress=True)
@@ -266,27 +234,20 @@ def main(args):
         backbone = models.resnet50(pretrained=args.prtr, progress=True)
     
     online_network = networksimclr(backbone,args.mlp_hid_size,args.proj_size).to(device)
-    
-    
+     
     ## getting optimizer
-    if args.optimizer=='adam':
-        
+    if args.optimizer=='adam':    
         optimizer = optim.Adam(online_network.parameters(),args.lr,weight_decay=args.wd)
         
     elif args.optimizer=='sgd':
-        
         optimizer = optim.SGD(online_network.parameters(),lr=args.lr,weight_decay=args.wd/N_train,momentum=0.9)
         
-        
     elif args.optimizer=='sghm':
-        
         optimizer = SGHM(params=online_network.parameters(),lr=args.lr,weight_decay=args.wd/N_train,momentum=0.9,\
                          temp=args.temp,addnoise=1,dampening=DEFAULT_DAMPENING,N_train=N_train)
         
-        
     ## getting loss
     criterion = NT_Xent(args.temp_loss,device)
-        
     
     history = {'train':[], 'val':[]}
     best_val = float('inf')
@@ -326,8 +287,7 @@ def main(args):
                 proj1 = online_network(img1)
                 proj2 = online_network(img2) 
                 
-                loss = Train(online_network,criterion,optimizer,proj1,proj2,phase,N_train,batch_idx,cycle_batch_length,epoch)
-                             
+                loss = Train(online_network,criterion,optimizer,proj1,proj2,phase,N_train,batch_idx,cycle_batch_length,epoch)             
                 total_loss += loss.item()
                 
                 if phase=='train':    
@@ -340,35 +300,27 @@ def main(args):
                 
             elif phase == "val":
                 metrics = {"loss_val": history[phase][-1],"epoch_val":epoch}
-                
-            wandb.log(metrics) 
-            
+                 
             if args.save_sample:
-            
                 if epoch>=args.epoch_st and (epoch%args.cycle_length)+1>(args.cycle_length-args.n_sam_cycle) and phase=='train':
-
                     sampled_epochs.append(epoch)
                     if use_cuda:
                         online_network.cpu()
                     torch.save(online_network.state_dict(),os.path.join(save_dir_mcmc,f'model_{mt}.pt'))
                     mt +=1
-                    online_network.cuda()
-                            
+                    online_network.cuda()        
                     print(f'sample {mt} from {args.N_samples} was taken!')
                     print(f'sampled epoch lr:%.7f'%(optimizer.param_groups[0]['lr']))
             
-        
         toc = time.time()
         runtime_epoch = toc - tic
         lr_epoch = optimizer.param_groups[0]['lr']
-        
         print('Epoch: %d Train_Loss: %0.4f, Val_Loss: %0.4f, time:%0.4f seconds, lr:%0.7f'%(epoch,history['train'][epoch],\
                                                                                   history['val'][epoch],
                                                                                   runtime_epoch,lr_epoch))
                                                                           
         ### save best model    
         if history['val'][epoch] < best_val:
-            
             best_val = history['val'][epoch]
             check_without_progress = 0 
             torch.save({'epoch':epoch+1,
@@ -383,59 +335,40 @@ def main(args):
                 'Loss':history['val'][epoch]},os.path.join(save_dir_epoch,f'{args.exp}_last_{args.model_type}sclr.pt'))
     print(f'save last model')
                                                    
-
 def Train(online_network,criterion,optimizer,proj1,proj2,phase,N_train,batch_idx,cycle_batch_length,epoch):
           
     loss = criterion(proj1,proj2)
     
     del proj1,proj2
     
-    if phase=='train':
-            
+    if phase=='train':        
         # Update network
         if args.scale:
-            loss = loss * N_train
-            
+            loss = loss * N_train    
         optimizer.zero_grad()
-        
         # Update lr 
         if args.lr_sch == 'cyc':
-            
             update_lr(args.lr,batch_idx,cycle_batch_length,args.n_sam_cycle,optimizer)
-            
         if args.lr_sch == 'lin':
-            
             lr = args.lr*np.exp(-args.lr_dec*min(1.0,(batch_idx*args.batch_size)/float(N_train)))
-
             update_lin(lr,optimizer)
         
         # Inject noise to parameter update
         if args.lr_sch == 'cyc' and args.epoch_noise:
-            
             if (epoch%args.cycle_length)+1 > args.epoch_noise:
-                
                 optimizer.param_groups[0]['epoch_noise'] = True                       
             else:         
                 optimizer.param_groups[0]['epoch_noise'] = False
-                
-                
         elif args.lr_sch in ['lin','fixed'] and args.epoch_noise:
-            
             if epoch >= args.epoch_noise:
-                
                 optimizer.param_groups[0]['epoch_noise'] = True 
-                
             else:
                 optimizer.param_groups[0]['epoch_noise'] = False
-            
         loss.backward() 
-        optimizer.step()
-                    
+        optimizer.step()              
         if args.scale:
             loss = loss/N_train
-            
     return(loss)
-
 
 #### Running the code
 if __name__=='__main__':

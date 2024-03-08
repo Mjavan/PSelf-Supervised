@@ -1,2 +1,2 @@
 # PSelf-Supervised
-A probabilistic approach to self supervised learning
+## Probabilistic Self-Supervised Learning using Cyclical Stochastic Gradient MCMC

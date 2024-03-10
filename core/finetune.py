@@ -26,7 +26,10 @@ from networks import networkbyol,networksimclr,finetune_net
 from utils import evaluation_metrics
 from dataloader import get_transform_ft as get_transform
 
-
+try:
+    import cPickle as pickle
+except:
+    import pickle
 import warnings 
 warnings.filterwarnings('ignore')
 

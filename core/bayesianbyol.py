@@ -144,7 +144,7 @@ def main(args):
     use_cuda = torch.cuda.is_available()
     
     ## making directory to save checkpoints 
-    save_dir = Path('../')
+    save_dir = Path('./')
     save_dir_ckpts = save_dir /'ckpts'/ 'byol_ckpts'
     save_dir_epoch = save_dir_ckpts / 'epoch_samples' / args.ds
     save_dir_mcmc = save_dir_ckpts / 'mcmc_samples'/ args.ds / f'{args.optimizer}_{args.exp}' 

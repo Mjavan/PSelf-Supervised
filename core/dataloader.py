@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, Subset
 import torchvision
 from torchvision import datasets,transforms
+from sklearn.model_selection import ShuffleSplit
 
 #### Data augmentation for pretraining
 def get_transform(in_size,ds,s=1,aug=True):

@@ -5,6 +5,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader, Subset
 from torch.optim import lr_scheduler
 from torch.optim.optimizer import Optimizer, required
+import torchvision
+from torchvision import datasets,transforms
 
 ##### python libraries
 import os
@@ -76,7 +78,7 @@ parser.add_argument('--seed',type=int,default=42,
 parser.add_argument('--exp',type=int,default=1009,
                         help='ID of this expriment!')
 
-parser.add_argument('--ds',type=str,default='stl10',choices=('cifar10','cifar100','imagenet10','stl10','tinyimagenet'),
+parser.add_argument('--ds',type=str,default='stl10',choices=('stl10','tinyimagenet'),
                         help='Dataset for pretraining!')
 
 parser.add_argument('--num_epochs',type=int, default=200,

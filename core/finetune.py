@@ -136,7 +136,7 @@ def semi_supervised(args):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     
     ## the directory to load checkpoints 
-    save_dir  = Path('../')
+    save_dir  = Path('./')
     load_dir  = save_dir / 'ckpts' 
     split_dir = save_dir / 'split_data' 
     exp_dir = save_dir / f'{args.cont}_ckpts' /'mcmc_samples'/ args.ds_pr 

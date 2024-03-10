@@ -191,13 +191,15 @@ def main(args):
     save_dir_mcmc = save_dir / 'simclr_ckpts'/'mcmc_samples'/ args.ds / f'{args.optimizer}_{args.exp}' 
     os.makedirs(save_dir_mcmc, exist_ok=True)
     os.makedirs(save_dir_epoch, exist_ok=True)
+    save_dir_param = save_dir/'params'/'byol_params'/'pretrain'/args.ds
+    os.makedirs(save_dir_param, exist_ok=True)
     
     ## saving version packages
     os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')
     
     ## saving hyperparameters
     HPS = vars(args)    
-    with open(save_dir/'params'/'simclr_params'/'pretrain'/args.ds/f'{args.exp}_{args.model_type}param.json','w') as file:    
+    with open(save_dir_param / f'{args.exp}_{args.model_type}param.json','w') as file:    
         json.dump(HPS,file,indent=4)
         
     ## getting dataset and dataloaders

@@ -1,14 +1,11 @@
+# /core/split_datasets.py
 import torch
-from torch import nn
-from torch import optim
-import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader, Subset
-from torch.optim import lr_scheduler
 
 #### pakckages from totrchvison
 import torchvision
 from torchvision import datasets,transforms
-import torchvision.models as models
+
 
 ##### python libraries
 import os
@@ -16,14 +13,9 @@ import random
 import math
 import json
 import argparse
-import time
-import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import datetime
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from sklearn.model_selection import ShuffleSplit
 
 try:
@@ -58,7 +50,6 @@ def get_transform(in_size,ds,phase='train'):
         mean_ds = [0.485, 0.456, 0.406]
         std_ds = [0.229, 0.224, 0.225]
            
-    
     if phase =='train':
         transform=transforms.Compose([transforms.RandomResizedCrop(size=in_size),
                                   transforms.RandomHorizontalFlip(),
@@ -126,6 +117,7 @@ def split_datasets(args):
     save_dir  = Path('./')
     
     save_split = save_dir / 'data' / 'split_data'
+    os.makedirs(save_split, exist_ok=True)
     
     ## loading data sets 
     if args.ds == 'cifar10':
@@ -142,13 +134,11 @@ def split_datasets(args):
         
     elif args.ds == 'imagenet10':
         path_imagenet = save_dir/'data'/'imagenet10'/'train'
-        
         transform=transforms.Compose([transforms.Resize(size=(args.in_size,args.in_size)),transforms.ToTensor()])       
         trainset = datasets.ImageFolder(path_imagenet,transform=transform)
         
     elif args.ds == 'tinyimagenet':
         path_tinyimagenet = save_dir/'data'/'tiny-imagenet-200'/'train'
-        
         transform=transforms.Compose([transforms.Resize(size=(args.in_size,args.in_size)),transforms.ToTensor()])
         trainset = datasets.ImageFolder(path_tinyimagenet,transform=transform)
                                             

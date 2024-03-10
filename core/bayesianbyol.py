@@ -40,7 +40,7 @@ parser.add_argument('--seed',type=int,default=42,
 parser.add_argument('--exp',type=int,default=538,
                         help='ID of this expriment!')
 
-parser.add_argument('--ds',type=str,default='cifar100',choices=('cifar10','cifar100','imagenet10','stl10','tinyimagenet'),
+parser.add_argument('--ds',type=str,default='stl10',choices=('cifar10','cifar100','imagenet10','stl10','tinyimagenet'),
                         help='Dataset for pretraining!')
 
 parser.add_argument('--num_epochs',type=int, default=10,
@@ -149,13 +149,15 @@ def main(args):
     save_dir_epoch = save_dir_ckpts / 'epoch_samples' / args.ds
     save_dir_mcmc = save_dir_ckpts / 'mcmc_samples'/ args.ds / f'{args.optimizer}_{args.exp}' 
     os.makedirs(save_dir_mcmc, exist_ok=True)
+    save_dir_param = save_dir/'params'/'byol_params'/'pretrain'/args.ds
+    os.makedirs(save_dir_param, exist_ok=True)
     
     ## saving version packages
     #os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')
   
     ## saving hyperparameters
     HPS = vars(args)    
-    with open(save_dir /'params'/'byol_params'/'pretrain'/args.ds/f'{args.exp}_{args.model_type}param.json','w') as file:    
+    with open(save_dir_param / f'{args.exp}_{args.model_type}param.json','w') as file:    
         json.dump(HPS,file,indent=4)
         
     ## getting dataset and dataloaders
@@ -170,8 +172,7 @@ def main(args):
     elif args.ds == 'imagenet10':
         path_imagenet = save_dir/'data'/'imagenet10'/'train'     
         dataset = datasets.ImageFolder(path_imagenet,transform=pair_aug(get_transform(args.in_size,args.ds,args.s,args.aug)))
-        
-        
+             
     elif args.ds == 'stl10':
         dataset = datasets.STL10('./data', split='unlabeled',transform=pair_aug(get_transform(args.in_size,args.ds,args.s)),\
                                  download = True)

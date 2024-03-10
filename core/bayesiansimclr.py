@@ -7,6 +7,7 @@ from torch.optim import lr_scheduler
 from torch.optim.optimizer import Optimizer, required
 import torchvision
 from torchvision import datasets,transforms
+import torchvision.models as models
 
 ##### python libraries
 import os

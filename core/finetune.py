@@ -251,6 +251,7 @@ def semi_supervised(args):
                 
                 last = True if i==n_ckts_tot-1 else False
                 save_dir_fine = save_dir / f'{args.cont}_ckpts' / 'finetune' / config['ds_ft']
+                os.makedirs(save_dir_fine, exist_ok=True)
                 single_finetune(config['exp'],model,optimizer,criterion,train_loader,val_loader,\
                                 config['num_epochs'],save_dir_fine,config['ckt'],i,device,train_split,\
                                 config['ds_ft'],last,config['opt'])

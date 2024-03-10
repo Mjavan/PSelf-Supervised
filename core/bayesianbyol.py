@@ -42,7 +42,7 @@ parser.add_argument('--seed',type=int,default=42,
 parser.add_argument('--exp',type=int,default=538,
                         help='ID of this expriment!')
 
-parser.add_argument('--ds',type=str,default='stl10',choices=('cifar10','cifar100','imagenet10','stl10','tinyimagenet'),
+parser.add_argument('--ds',type=str,default='stl10',choices=('stl10','tinyimagenet'),
                         help='Dataset for pretraining!')
 
 parser.add_argument('--num_epochs',type=int, default=10,

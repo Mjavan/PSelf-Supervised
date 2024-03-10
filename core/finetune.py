@@ -218,7 +218,7 @@ def semi_supervised(args):
         if config['fine']:
             for i in range(config['burn_in'],n_ckts_tot):
                 print("\n ##################################################")
-                print(f'{i+1}th model form epoch {ckt_epochs[i]} is loaded!')
+                print(f'{i+1}th model is loaded!')
                 print("#####################################################")
             
                 sam_dir = os.path.join(exp_dir ,'%s_%d'%(config['opt'],config['exp']))

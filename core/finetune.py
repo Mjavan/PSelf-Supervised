@@ -140,7 +140,7 @@ def semi_supervised(args):
     save_dir  = Path('./')
     load_dir  = save_dir / 'ckpts' 
     split_dir = save_dir / 'split_data' 
-    exp_dir = save_dir / f'{args.cont}_ckpts' /'mcmc_samples'/ args.ds_pr 
+    exp_dir = load_dir / f'{args.cont}_ckpts' /'mcmc_samples'/ args.ds_pr 
     param_dir = save_dir /'params'/f'{args.cont}_params'/'finetune'/ args.ds_ft /\
     f'exp_{args.exp}_opt_{args.opt}_pr_{args.ds_pr}'
     param_dir_pr = save_dir/'params'/f'{args.cont}_params'/'pretrain'/args.ds_pr

@@ -67,7 +67,7 @@ def get_train_val_loader(dataset,val_size,batch_size,num_workers,seed):
         return(dataloader,_)
     
 #### Preprocessing for finetune
-def get_transformfinetune(ds,in_size=None):
+def get_transform_ft(ds,in_size=None):
     
     if ds == 'cifar10':
         mean_ds = [0.491, 0.482, 0.447]

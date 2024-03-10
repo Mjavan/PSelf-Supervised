@@ -29,6 +29,7 @@ from networks import networkbyol,networksimclr,finetune_net
 from utils import evaluation_metrics
 from dataloader import get_transform_ft as get_transform
 from single_finetune import single_finetune
+from inference import inference
 
 try:
     import cPickle as pickle

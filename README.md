@@ -23,9 +23,11 @@ or
 
 `python bayesiansimclr.py`
 
-For downstream task you can make different splits of data using `split_data.py` in `core` simply via:
+For downstream task make different splits of data using `split_datasets.py` in `core` simply via:
 
-`python split_data.py `
+`python split_datasets.py`
+
+
 
 
 

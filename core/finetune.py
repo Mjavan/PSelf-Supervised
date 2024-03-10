@@ -41,7 +41,7 @@ parser.add_argument('--exp',type=int,default=477,
 parser.add_argument('--cont',type=str,default='byol',choices=('byol','simclr'),
                         help='The contrastive model that we used for pretraining!')
 
-parser.add_argument('--ds_pr',type=str,default='cifar10',choices=('cifar10','cifar100','stl10','tinyimagenet','imagenet10'),
+parser.add_argument('--ds_pr',type=str,default='stl10',choices=('stl10','tinyimagenet'),
                         help='Dataset that we pretrained the model on that!')
 
 parser.add_argument('--ds_ft',type=str,default='cifar10', 

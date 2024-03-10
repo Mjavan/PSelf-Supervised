@@ -152,6 +152,7 @@ def main(args):
     save_dir_epoch = save_dir_ckpts / 'epoch_samples' / args.ds
     save_dir_mcmc = save_dir_ckpts / 'mcmc_samples'/ args.ds / f'{args.optimizer}_{args.exp}' 
     os.makedirs(save_dir_mcmc, exist_ok=True)
+    os.makedirs(save_dir_epoch, exist_ok=True)
     save_dir_param = save_dir/'params'/'byol_params'/'pretrain'/args.ds
     os.makedirs(save_dir_param, exist_ok=True)
     

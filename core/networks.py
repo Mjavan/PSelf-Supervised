@@ -21,7 +21,7 @@ class MLP(nn.Module):
 #### Network for Byol model
 class networkbyol(nn.Module):
     def __init__(self,net,backbone,mid_dim,out_dim):  
-        super(network,self).__init__()
+        super(networkbyol,self).__init__()
         
         self.net = net
         self.encoder = torch.nn.Sequential(*list(backbone.children())[:-1])
@@ -41,7 +41,7 @@ class networkbyol(nn.Module):
 #### Network for simclr model    
 class networksimclr(nn.Module):
     def __init__(self,backbone,mid_dim,out_dim):  
-        super(network,self).__init__()
+        super(networksimclr,self).__init__()
         # we get representations from avg_pooling layer
         self.encoder = torch.nn.Sequential(*list(backbone.children())[:-1])
         self.projection = MLP(in_dim= backbone.fc.in_features,mlp_hid_size=mid_dim,proj_size=out_dim) 

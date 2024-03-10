@@ -139,7 +139,7 @@ def semi_supervised(args):
     ## the directory to load checkpoints 
     save_dir  = Path('./')
     load_dir  = save_dir / 'ckpts' 
-    split_dir = save_dir / 'split_data' 
+    split_dir = save_dir / 'data' / 'split_data' 
     exp_dir = load_dir / f'{args.cont}_ckpts' /'mcmc_samples'/ args.ds_pr 
     param_dir = save_dir /'params'/f'{args.cont}_params'/'finetune'/ args.ds_ft /\
     f'exp_{args.exp}_opt_{args.opt}_pr_{args.ds_pr}'

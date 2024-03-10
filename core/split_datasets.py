@@ -107,7 +107,7 @@ parser.add_argument('--ds',type=str,default='imagenet10',
 parser.add_argument('--in_size',type=int,default=224,choices=(32,28,64,96,224),
                        help='the input size of images')
 
-parser.add_argument('--splits',nargs="+", default=[100],
+parser.add_argument('--splits',nargs="+",type=int, default=[100],
                        help='the split of train set that we want to have!')
 
 args = parser.parse_args()

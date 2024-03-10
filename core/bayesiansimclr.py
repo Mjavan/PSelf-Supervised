@@ -195,7 +195,7 @@ def main(args):
     os.makedirs(save_dir_param, exist_ok=True)
     
     ## saving version packages
-    os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')
+    #os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')
     
     ## saving hyperparameters
     HPS = vars(args)    

@@ -12,7 +12,7 @@ Install `core` module via:
 
 `pip install .`
 
-## Usage
+### Usage
  
 To obtain distribution over representations in pretraining phase use `bayesianbyol.py` in `core` module that is based on BayesianByol. Likewise you can take samples from posterior using BayesianSimCLR via `bayesiansimclr`.
 To trian the model simply run:

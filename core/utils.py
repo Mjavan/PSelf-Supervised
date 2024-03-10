@@ -1,4 +1,5 @@
 import torch
+from torch import nn
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from pathlib import Path 

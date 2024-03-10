@@ -187,7 +187,6 @@ def semi_supervised(args):
     
     # loading mcmc chekpoints
     ckt_list = os.listdir(os.path.join(exp_dir,'%s_%d'%(config['opt'],config['exp'])))
-    ckt_epochs = torch.load(os.path.join(exp_dir,'%s_%d_epochs.pt'%(config['opt'],config['exp'])),map_location=device)
     n_ckts_tot = config['ckt_sp'] if config['ckt_sp'] else len(ckt_list) 
     
     n_ckts = n_ckts_tot - config['burn_in']

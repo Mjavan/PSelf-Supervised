@@ -116,7 +116,7 @@ def split_datasets(args):
     
     save_dir  = Path('./')
     
-    save_split = save_dir / 'data' / 'split_data'
+    svd_split = save_dir / 'data' / 'split_data'
     os.makedirs(save_split, exist_ok=True)
     
     ## loading data sets 

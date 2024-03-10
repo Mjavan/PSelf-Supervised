@@ -7,6 +7,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader, Subset
 from torch.optim import lr_scheduler
 from torch.optim.optimizer import Optimizer, required
+import torchvision
+from torchvision import datasets,transforms
 
 ##### python libraries
 import os

@@ -171,7 +171,7 @@ def split_datasets(args):
     
 #### running script ####
 if __name__=='__main__':
-    save_datasets(args)
+    split_datasets(args)
     
 
     

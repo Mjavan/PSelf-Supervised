@@ -190,6 +190,7 @@ def main(args):
     save_dir_epoch = save_dir_ckpts / 'epoch_samples' / args.ds
     save_dir_mcmc = save_dir / 'simclr_ckpts'/'mcmc_samples'/ args.ds / f'{args.optimizer}_{args.exp}' 
     os.makedirs(save_dir_mcmc, exist_ok=True)
+    os.makedirs(save_dir_epoch, exist_ok=True)
     
     ## saving version packages
     os.system(f'conda env export > {save_dir}/yml/{args.optimizer}_{args.exp}_env.yml')

@@ -88,81 +88,56 @@ def get_auroc(pr_pos, pr_neg):
 
 # The main execution 
 parser = argparse.ArgumentParser(description='OOD test of Byol and BByol')
-
 parser.add_argument('--seed',type=int,default=42,
                     help='the seed for experiments!')
-
 parser.add_argument('--exp',type=int,default=770,
                         help='ID of expriment that we want to use for OOD!')
-
 parser.add_argument('--opt',type=str,choices=('adam','sgd','sghm'), default='sghm',
                        help='optimizer to be used!')
-
 parser.add_argument('--prtr',type=bool, default=False,
                        help='If we want to use pretrained resnet or not!')
-
 parser.add_argument('--model',type=str,default='cbyol',choices=('byol','bbyol','cbyol'),
                         help='which model we want to use for OOD!')
-
 # model information 
 parser.add_argument('--emb_size',type=int, choices=(512,4096), default=512,
                        help='embeding size!')
-
 parser.add_argument('--proj_size',type=int, default=128,
                        help='the size of projection map')
-
 # data and datasets
 parser.add_argument('--in_size',type=int,default=96,
                         help='The input size of images in pretrained model!')
-
 parser.add_argument('--split',nargs="+", default=100,
                        help='the split of train set that we want to consider as finetuned model!')
-
 parser.add_argument('--ds_pr',type=str,default='stl10', choices=('cifar10','cifar100','stl10'),
                         help='Dataset that we pretrained the model!')
-
 parser.add_argument('--ds_ft',type=str,default='cifar100', choices=('cifar10','cifar100','stl10'),
                         help='Dataset for loading finetune model!')
-
 parser.add_argument('--ood_ds',type=str,default='cifar10', choices=('svhn','lsun','cifar100','cifar10'),
                         help='Dataset that we want to use for OOD!') 
-
 parser.add_argument('--num_classes',type=int, choices=(10,100), default=100,
                        help='The number of classes in fine tunned model')
-
 parser.add_argument('--num_cls_OOD',type=int, choices=(10,100), default=10,
                        help='The number of classes in OOD!')
-
 parser.add_argument('--b_size',type=int, default=100,
                        help='batch size for testset.')
 
 # number of ensembles 
 parser.add_argument('--burn_in',type=int,default=5,
                         help='If we want to consider any checkpoint as burn-in phase!')
-
 parser.add_argument('--num_ens',type=int, default=6,
                        help='the number of ensembles that we want to take!')
-
-
 parser.add_argument('--burn_in_ind',type=int,default=1,
                         help='The burn in that we used for in distribution finetunning!')
-
 parser.add_argument('--in_dist',type=bool,default=True,
                         help='If we want to have in_dist analysis!')
-
 # plotting
 parser.add_argument('--plot',type=bool, default=True,
                        help='If we want to plot cdf or pdf histograms!')
-
 parser.add_argument('--write_exp',type=bool, default=True,
                        help='If we want to write our expriments in csv file or not!')
-
 args = parser.parse_args()
 
-
-
-def OOD(args):
-    
+def OOD(args):    
     save_dir = Path('./')
     save_dir_fine = save_dir / 'byol_ckpts' / 'finetune' / args.ds_ft
     result_dir = save_dir / 'results' / 'OOD'
@@ -174,7 +149,6 @@ def OOD(args):
     
     # defining loss function
     criterion = nn.CrossEntropyLoss().to(device)
-
     backbone = models.resnet18(pretrained=args.prtr, progress=True)
     
     # making ood datasets and data loaders
@@ -197,36 +171,28 @@ def OOD(args):
     ce_loss = 0
     nll = 0
     correct = 0
-    
     for j,(img,lable) in enumerate(testloader):
-        
         img = img.to(device)
         lable = lable.to(device)
         tot_gt+=list(lable.data.cpu().numpy())
-        batch_output = img.data.new(tot_ens,len(img),args.num_cls_OOD)
-            
+        batch_output = img.data.new(tot_ens,len(img),args.num_cls_OOD)    
         for idx,i in enumerate(range(args.burn_in,args.num_ens)):         
             net = networkbyol('online',backbone,args.emb_size,args.proj_size).to(device)
             encoder = nn.Sequential(*list(net.children())[:-2])
-            model = finetune_net(encoder,args.emb_size,args.num_classes).to(device)
-                
+            model = finetune_net(encoder,args.emb_size,args.num_classes).to(device)    
             # load best model from fine tunned modesl dir
             ckt_inf = torch.load(os.path.join(save_dir_fine,f'{args.exp}_{args.split}%_all_{i}_best_model.pt'),\
                                  map_location=device)
-            
             model.load_state_dict(ckt_inf['model'])
             if args.num_classes != args.num_cls_OOD:
                 model.linear = nn.Linear(args.emb_size,args.num_cls_OOD).to(device)
             batch_output[idx] = model(img.float())
-        
         # take mean of logits and compute CE loss: [batch,cls_OOD]
         mean_logits_batch = batch_output.mean(dim=0)
         loss1 = criterion(mean_logits_batch,lable)  # reduction:mean
         ce_loss += loss1.item()
-        
         pred = mean_logits_batch.argmax(1)
         correct += (pred==lable).sum().item()
-        
         # pr_logits_batch: [n_ens,batch,cls]
         # mean_pr_batch: [batch,cls_OOD]
         mean_pr_logits_batch = F.softmax(batch_output,dim=2).mean(dim=0,keepdim=False)
@@ -255,9 +221,7 @@ def OOD(args):
     # neg: OOD => label: 0
     pr_pos = mean_pr_InD.max(axis=1)
     pr_neg = mean_pr_logits.max(axis=1)
-    
     auc_roc_scr = get_auroc(pr_pos,pr_neg)
-    
     if args.write_exp: 
         data = {
             'ood_ds':[args.ood_ds],
@@ -274,22 +238,17 @@ def OOD(args):
             'mean_H':[round(mean_eps,1)],
             'std_H':[round(std_eps,1)]
         }
-        
         # ./results
         csv_path = Path(os.path.join(result_dir,'run_sweeps_test_OOD.csv'))
-
         if os.path.exists(csv_path): 
             sweeps_df = pd.read_csv(csv_path)
             sweeps_df = sweeps_df.append(
             pd.DataFrame.from_dict(data), ignore_index=True).set_index('exp')
-
         else:
             csv_path.parent.mkdir(parents=True, exist_ok=True) 
             sweeps_df = pd.DataFrame.from_dict(data).set_index('exp')
-
         # save experiment metadata csv file
-        sweeps_df.to_csv(csv_path)
-                
+        sweeps_df.to_csv(csv_path)                
 # main execuation
 if __name__=='__main__':
    

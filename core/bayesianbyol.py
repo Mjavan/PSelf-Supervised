@@ -273,7 +273,8 @@ def main(args):
                         online_network.cpu()
                     torch.save(online_network.state_dict(),os.path.join(save_dir_mcmc,f'model_{mt}.pt'))
                     mt +=1
-                    online_network.cuda()        
+                    if use_cuda:
+                        online_network.cuda()        
                     print(f'sample {mt} from {args.N_samples} was taken!')
                     print(f'sampled epoch lr:%.7f'%(optimizer.param_groups[0]['lr']))
                   

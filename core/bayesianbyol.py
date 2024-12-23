@@ -112,7 +112,7 @@ parser.add_argument('--clip_grad',type = bool, default=False,
                         help = 'If we want to clip grad or not!')
 
 # inject noise & saving cechpoints
-parser.add_argument('--epoch-noise',type =int, default=2, 
+parser.add_argument('--epoch_noise',type =int, default=2, 
                         help = 'The epoch that we want to inject the noise, (set 0 if we do not want to inject noise)!')
 
 parser.add_argument('--save_sample',type =bool, default =True, 

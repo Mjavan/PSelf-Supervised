@@ -53,7 +53,7 @@ parser.add_argument('--model_type',type=str, default='cb', choices=('','b','c','
                        help='If we want to train byol, bbyol, cbyol, cbbyol!')
 
 # model
-parser.add_argument('--model_depth',type=str,choices=('res18','res50','res100'),default='res18',
+parser.add_argument('--model_depth',type=str,choices=('res18','res50','res150'),default='res18',
                         help='Model to use as feature extractor!')
 
 parser.add_argument('--mlp_hid_size',type=int, choices=(512,2048), default=512,

@@ -22,4 +22,3 @@ ENTRYPOINT ["/app/core/run.sh"]
 # Step 5: Make port 8000 available to the outside world
 EXPOSE 8000
 
-CMD ["--help"]  # Default argument for entrypoint.sh

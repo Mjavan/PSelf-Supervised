@@ -118,7 +118,7 @@ parser.add_argument('--epoch_noise',type =int, default=2,
 parser.add_argument('--save_sample',type =bool, default =True, 
                         help = 'If we want to save samples or not!')
 
-parser.add_argument('--epoch-st',type =int, default=0, 
+parser.add_argument('--epoch_st',type =int, default=0, 
                         help = 'The epoch that we want to start saving checkpints!')
 
 parser.add_argument('--n_sam_cycle',type=int, default=1,

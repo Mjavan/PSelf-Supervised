@@ -1,10 +1,6 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
-<<<<<<< HEAD
-_libgcc_mutex==0.1==conda_forge
-_openmp_mutex==4.5==2_kmp_llvm
-_py-xgboost-mutex==2.0==cpu_0
 anyio==3.5.0==py39h06a4308_0
 argon2-cffi==21.3.0==pyhd3eb1b0_0
 argon2-cffi-bindings==21.2.0==py39h7f8727e_0
@@ -315,6 +311,7 @@ zfp==0.5.5==h295c915_6
 zipp==3.11.0==py39h06a4308_0
 zlib==1.2.13==h5eee18b_0
 zstd==1.5.5==hc292b87_0
+<<<<<<< HEAD
 =======
 #_libgcc_mutex=0.1=conda_forge
 #_openmp_mutex=4.5=2_kmp_llvm
@@ -630,3 +627,5 @@ zipp=3.11.0=py39h06a4308_0
 zlib=1.2.13=h5eee18b_0
 zstd=1.5.5=hc292b87_0
 >>>>>>> e8f269654d40831353f2dc7859c4e920c8740599
+=======
+>>>>>>> 40d77ee (Update requirements.txt to use pip-compatible version specifiers (==))

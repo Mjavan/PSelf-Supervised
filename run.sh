@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default values for arguments
-DEFAULT_SCRIPT="core/BayesianByol.py"
+DEFAULT_SCRIPT="core/bayesianbyol.py"
 seed=42
 exp=600
 num_epochs=20

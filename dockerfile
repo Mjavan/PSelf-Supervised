@@ -6,11 +6,11 @@ ENV PYTHONBUFFERED=TRUE
 # Step 2: Set the working directory in the container
 WORKDIR /app
 
-# Step 3: Copy the current directory contents into the container at /app
-COPY requirements.txt /app
+# Step 3: Copy the requirements.txt and setup.py (if any) into the container
+COPY setup.py /app/
 
-# Step 4: Install the required dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Step 4: Install the project and its dependencies via setup.py
+RUN pip install --no-cache-dir .
 
 
 COPY core/ /app/core

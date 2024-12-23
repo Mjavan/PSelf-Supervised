@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 COPY core/ /app/core
-COPY entrypoint.sh /app/core
-RUN chmod +x /app/core/entrypoint.sh
+COPY run.sh /app/core
+RUN chmod +x /app/core/run.sh
 
-ENTRYPOINT ["/app/core/entrypoint.sh"]
+ENTRYPOINT ["/app/core/run.sh"]
 
 # Step 5: Make port 8000 available to the outside world
 EXPOSE 8000

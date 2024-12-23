@@ -46,7 +46,7 @@ parser.add_argument('--exp',type=int,default=538,
 parser.add_argument('--ds',type=str,default='stl10',choices=('stl10','tinyimagenet'),
                         help='Dataset for pretraining!')
 
-parser.add_argument('--num_epochs',type=int, default=10,
+parser.add_argument('--num_epochs',type=int, default=20,
                        help='Number of epoch for pretraining')
 
 parser.add_argument('--model_type',type=str, default='cb', choices=('','b','c','cb'),
@@ -101,7 +101,7 @@ parser.add_argument('--lr_sch',type = str, default='cyc',choices=('cyc','fixed',
 parser.add_argument('--lr_dec',type=float,default=3.0,
                        help='lr decay for linear schedule!')
 
-parser.add_argument('--cycle_length',type=int, default=50,
+parser.add_argument('--cycle_length',type=int, default=5,
                        help='Number of epochs in each cycle to either lr update or save checkpoints!')
 
 # regularizer
@@ -112,19 +112,19 @@ parser.add_argument('--clip_grad',type = bool, default=False,
                         help = 'If we want to clip grad or not!')
 
 # inject noise & saving cechpoints
-parser.add_argument('--epoch-noise',type =int, default=45, 
+parser.add_argument('--epoch-noise',type =int, default=2, 
                         help = 'The epoch that we want to inject the noise, (set 0 if we do not want to inject noise)!')
 
 parser.add_argument('--save_sample',type =bool, default =True, 
                         help = 'If we want to save samples or not!')
 
-parser.add_argument('--epoch-st',type =int, default=350, 
+parser.add_argument('--epoch-st',type =int, default=0, 
                         help = 'The epoch that we want to start saving checkpints!')
 
 parser.add_argument('--n_sam_cycle',type=int, default=1,
                        help='Number of samples in each cycle')
 
-parser.add_argument('--N_samples',type =int, default=13, 
+parser.add_argument('--N_samples',type =int, default=4, 
                         help = 'Number of sample weights that we want to take!')
 
 parser.add_argument('--scale',type =bool, default =False, 

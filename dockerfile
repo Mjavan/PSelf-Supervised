@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Step 3: Copy the requirements.txt and setup.py (if any) into the container
 COPY setup.py /app/
+COPY . /app/
 
 # Step 4: Install the project and its dependencies via setup.py
 RUN pip install --no-cache-dir .

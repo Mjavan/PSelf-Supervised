@@ -9,9 +9,7 @@ arXiv: http://arxiv.org/abs/2308.01271
 
 ### Installation
 ------------------------------------
-Install conda environment from `requirements.txt`. If the survae module cannot be found, clone the repo and install with:
-
-`pip install .`
+ Clone the repo and install with: `pip install .`
 
 ### Usage
  

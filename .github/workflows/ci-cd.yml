@@ -36,10 +36,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_USERNAME }}/my-image
-
+      
+      # Example step to print all meta data
+      - name: Debug metadata outputs
+        run: echo "Available outputs: ${{ toJson(steps.meta.outputs) }}"
+      
       # Example step to print metadata (optional)
       - name: Print metadata
-        run: echo "Image metadata: ${{ steps.meta.outputs.metadata }}"
+        run: echo "Image metadata: ${{ steps.meta.outputs.tags }}"
       
       # Example build and push the image
       - name: Build and push Docker image

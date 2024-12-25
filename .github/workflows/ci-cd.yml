@@ -40,3 +40,11 @@ jobs:
       # Example step to print metadata (optional)
       - name: Print metadata
         run: echo "Image metadata: ${{ steps.meta.outputs.metadata }}"
+      
+      # Example build and push the image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: ${{ github.event_name != 'pull_request' }} # Only push if the event is not a pull request
+          tags: ${{ steps.meta.outputs.tags }} # Use the metadata tags for the image
+          annotations: ${{ steps.meta.outputs.annotations }}

@@ -14,71 +14,9 @@ jobs:
 
     # Defining variables for the job
     env:
-      DOCKER_USERNAME:mjavan
-      DOCKER_PASSWORD:  dckr_pat_ITLXcdMWVpfwqqX8pK6agWbJDEon
-                                                              # If you're not concerned about this being exposed
-
-    steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Log in to Docker Hub using vars for credentials
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-      name: Docker Metadata Extraction
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    # Defining variables for the job
-    env:
-      DOCKER_USERNAME:mjavan
-      DOCKER_PASSWORD:  dckr_pat_ITLXcdMWVpfwqqX8pK6agWbJDEon
-                                                              # If you're not concerned about this being exposed
-
-    steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Log in to Docker Hub using vars for credentials
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-     name: Docker Metadata Extraction
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    # Defining variables for the job
-    env:
-      DOCKER_USERNAME:mjavan
-      DOCKER_PASSWORD:  dckr_pat_ITLXcdMWVpfwqqX8pK6agWbJDEon
-                                                              # If you're not concerned about this being exposed
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
+                                                             
 
     steps:
       # Checkout the repository
@@ -92,7 +30,7 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
       
-      # Extract Docker image metadat
+      # Docker Metadata Extraction
       - name: Extract Docker image metadata
         id: meta
         uses: docker/metadata-action@v5

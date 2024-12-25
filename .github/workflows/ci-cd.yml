@@ -15,7 +15,7 @@ jobs:
     # Defining variables for the job
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD}} # The password was updated 
                                                              
 
     steps:

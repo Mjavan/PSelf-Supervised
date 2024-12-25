@@ -41,10 +41,6 @@ jobs:
       - name: Debug metadata outputs
         run: echo "Available outputs: ${{ toJson(steps.meta.outputs) }}"
       
-      # Example step to print metadata (optional)
-      - name: Print metadata
-        run: echo "Image metadata: ${{ steps.meta.outputs.tags }}"
-      
       # Example build and push the image
       - name: Build and push Docker image
         uses: docker/build-push-action@v6

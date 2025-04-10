@@ -5,6 +5,7 @@ This repository provides PyTorch implimentation of "Probabilistic Self-Supervise
 ![Alt text](Full_image.png)
 
 arXiv: http://arxiv.org/abs/2308.01271
+Accepted: Frontiers in Probabilistic Inference: Sampling Meets Learning" Workshop, ICLR 2025
 
 
 ### Installation

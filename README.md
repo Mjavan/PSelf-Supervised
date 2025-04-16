@@ -5,7 +5,9 @@ This repository provides PyTorch implimentation for the paper "A Probabilistic A
 ![Alt text](Full_image.png)
 
 **Accepted at**:
+
 **Frontiers in Probabilistic Inference: Sampling Meets Learning** Workshop, **ICLR 2025**
+
 **arXiv**: http://arxiv.org/abs/2308.01271
 
 -------------------------------------------

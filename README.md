@@ -4,14 +4,13 @@ This repository provides PyTorch implimentation for the paper "A Probabilistic A
 
 ![Alt text](Full_image.png)
 
-**Accepted in**: Frontiers in Probabilistic Inference: Sampling Meets Learning" Workshop, ICLR 2025
+**Accepted at**:
+**Frontiers in Probabilistic Inference: Sampling Meets Learning** Workshop, **ICLR 2025**
+**arXiv**: http://arxiv.org/abs/2308.01271
 
-arXiv: http://arxiv.org/abs/2308.01271
-
-
+-------------------------------------------
 
 ### Installation
-------------------------------------
  Clone the repo and install using: 
  `pip install .`
 

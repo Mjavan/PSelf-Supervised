@@ -32,6 +32,7 @@ For downstream task make different splits of data using `split_datasets.py` in `
 To evaluate probablistic representations in image classification task use `finetune.py` in `core`. The function finetunes pretrained models using different representations from the posterior on various splits of data. The performance is reported on the test set (or validation set for e.g. in ImageNet-10) by marginalizing over representations. To run the code simply use:
 
 `python finetune.py`
+
 -----------------------
 ### Dependencies 
 - Pytorch

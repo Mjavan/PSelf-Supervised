@@ -1,6 +1,6 @@
 # PSelf-Supervised
 ### Probabilistic Self-Supervised Learning using Cyclical Stochastic Gradient MCMC
-This repository provides PyTorch implimentation of "Probabilistic Self-Supervised Learning using Cyclical Stochastic Gradient MCMC".
+This repository provides PyTorch implimentation for the paper "A Probabilistic Approach to Self-Supervised Learning using Cyclical Stochastic Gradient MCMC".
 
 ![Alt text](Full_image.png)
 

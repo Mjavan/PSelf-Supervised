@@ -15,8 +15,12 @@ arXiv: http://arxiv.org/abs/2308.01271
  Clone the repo and install with: `pip install .`
 
 ### Usage
+
+#### Pretraining
  
-To obtain distribution over representations in pretraining phase use `bayesianbyol.py` in `core` module that is based on BayesianByol. Likewise you can take samples from posterior using BayesianSimCLR via `bayesiansimclr.py`
+To obtain distribution over representations in pretraining phase use `bayesianbyol.py` in `core` module (based on **Bayesian Byol**).
+Alternatively, you can take samples from the posterior using **Bayesian SimCLR** `bayesiansimclr.py`
+
 To trian the model simply run:
 
 `python bayesianbyol.py`
@@ -25,11 +29,17 @@ or
 
 `python bayesiansimclr.py`
 
-For downstream task make different splits of data using `split_datasets.py` in `core` simply via:
+#### Dataset Splits
+
+For downstream tasks, create different data splits using `split_datasets.py` in `core` module:
 
 `python split_datasets.py`
 
-To evaluate probablistic representations in image classification task use `finetune.py` in `core`. The function finetunes pretrained models using different representations from the posterior on various splits of data. The performance is reported on the test set (or validation set for e.g. in ImageNet-10) by marginalizing over representations. To run the code simply use:
+#### Evaluation
+To evaluate the probabilistic representations on an image classification task, use `finetune.py` in the core module.
+The function finetunes the pretrained models using samples from the posterior across various data splits. 
+Performance is reported on the test set (or validation set, e.g., in ImageNet-10) by marginalizing over the learned representations.
+To run:
 
 `python finetune.py`
 

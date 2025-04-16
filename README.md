@@ -12,7 +12,8 @@ arXiv: http://arxiv.org/abs/2308.01271
 
 ### Installation
 ------------------------------------
- Clone the repo and install with: `pip install .`
+ Clone the repo and install using: 
+ `pip install .`
 
 ### Usage
 

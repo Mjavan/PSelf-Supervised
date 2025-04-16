@@ -22,7 +22,7 @@ This repository provides PyTorch implementation for the paper "A Probabilistic A
  
 To obtain distribution over representations in pretraining phase use `bayesianbyol.py` in `core` module (based on **Bayesian Byol**).
 
-Alternatively, you can take samples from the posterior using **Bayesian SimCLR** `bayesiansimclr.py`
+Alternatively, you can take samples from the posterior using **Bayesian SimCLR** `bayesiansimclr.py`.
 
 To trian the model simply run:
 

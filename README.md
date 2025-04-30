@@ -8,7 +8,7 @@ This repository provides PyTorch implementation for the paper "A Probabilistic A
 
 **Frontiers in Probabilistic Inference: Sampling Meets Learning** Workshop, **ICLR 2025**
 
-**arXiv**: http://arxiv.org/abs/2308.01271
+**Paper**: [Camera-ready (ICLR OpenReview)](https://openreview.net/pdf?id=rNyHxOgqGO)
 
 -------------------------------------------
 
